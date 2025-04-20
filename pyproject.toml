@@ -1,0 +1,36 @@
+[project]
+name = "tron-network-observer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.15.2",
+    "asyncpg>=0.30.0",
+    "base58>=2.1.1",
+    "fastapi>=0.115.12",
+    "httptools>=0.6.4",
+    "httpx>=0.28.1",
+    "pydantic-settings>=2.9.1",
+    "redis>=5.2.1",
+    "sqlalchemy>=2.0.40",
+    "uvloop>=0.21.0",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 79
+filter_files = true
+extend_skip_glob= ["*/tests/*", "*/migrations/*", "*/scripts/*", "*/swagger_client/*", "*/settings/*", '*/documentation/*']
+skip_gitignore = true
+
+
+[tool.black]
+line_length = 79
+force_exclude = "/(tests|migrations|scripts|swagger_client|settings|documentation)/"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+]
