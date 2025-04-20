@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     async with httpx.AsyncClient() as httpx_client:
         app.dependency_overrides[get_httpx_clint] = lambda: httpx_client
         app.dependency_overrides[get_redis] = lambda: redis
+        yield
 
 
 fastapi_app = FastAPI(title="Tron Network Observer", lifespan=lifespan)

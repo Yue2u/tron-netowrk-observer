@@ -19,24 +19,24 @@ class TronClient:
         self._client = client
         self._base_url = base_url
 
-    async def get_account(self, address: str) -> dict[str, Any]:
+    async def get_account(self, address: str) -> AccountModel:
         """Get account info (including TRX)."""
         response = await self._client.post(
             f"{self._base_url}/wallet/getaccount",
             json={"address": address, "visible": True},
         )
         response.raise_for_status()
-        return AccountModel.model_validate_json(response.json())
+        return AccountModel.model_validate(response.json())
 
     async def get_account_resources(
         self, address: str
     ) -> AccountResourcesModel:
         """Get bandwith and energy info."""
-        url = f"{self.api_url}/wallet/getaccountresource"
+        url = f"{self._base_url}/wallet/getaccountresource"
         payload = {"address": address, "visible": True}
         response = await self._client.post(url, json=payload)
         response.raise_for_status()
-        return AccountResourcesModel.model_validate_json(response.json())
+        return AccountResourcesModel.model_validate(response.json())
 
     def validate_address(self, address: str) -> bool:
         """Check TRON address is valid."""

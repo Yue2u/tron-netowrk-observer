@@ -20,6 +20,6 @@ class AccountInfoModel(BaseModel):
     address: str = Field(description="TRON address")
     bandwidth_used: int = Field(description="Used bandwidth")
     bandwidth_limit: int = Field(description="Total bandwidth limit")
-    energy_used: int = Field(description="Used energy")
-    energy_limit: int = Field(description="Total energy limit")
+    energy_used: int | None = Field(description="Used energy")
+    energy_limit: int | None = Field(description="Total energy limit")
     trx_balance: float = Field(description="TRX balance in TRX")
