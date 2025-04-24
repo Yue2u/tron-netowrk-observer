@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import conint
 
 from clients.tron import TronClient, TronClientException, get_tron_client
 from cruds.uow import UoW, get_uow
@@ -23,6 +24,9 @@ async def get_account_info(
 ):
     try:
         resp_data = await tron_client.get_account_info(req.address)
+        import logging
+
+        logging.info(f"Data is {resp_data}")
     except TronClientException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
@@ -36,9 +40,11 @@ async def get_account_info(
 
 
 @router.get("/records_info")
-async def get_recoreds_info(
-    uow: Annotated[UoW, Depends(get_uow)], req: TronAQRecordsRequest
+async def get_records_info(
+    uow: Annotated[UoW, Depends(get_uow)],
+    page_number: Annotated[int, conint(strict=True, ge=1)] = 1,
+    page_size: Annotated[int, conint(strict=True, ge=1)] = 100,
 ):
     return await uow.tron_aq.get_paginated(
-        page_size=req.page_size, page_number=req.page_number
+        page_size=page_size, page_number=page_number
     )

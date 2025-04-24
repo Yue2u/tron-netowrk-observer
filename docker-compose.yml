@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    command: "uv run uvicorn app:fastapi_app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./src:/app
+    networks:
+      - tron-network
+    env_file:
+      - .env
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=tron_observer
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=fjJFsASfbk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tron-network
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tron-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  tron-network:
+    external: true
+    driver: bridge 

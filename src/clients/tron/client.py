@@ -2,7 +2,7 @@ import asyncio
 from typing import Any
 
 import httpx
-from base58 import b58decode
+from base58 import b58decode_check
 
 from .exceptions import TronClientException
 from .schemas import AccountInfoModel, AccountModel, AccountResourcesModel
@@ -40,11 +40,26 @@ class TronClient:
 
     def validate_address(self, address: str) -> bool:
         """Check TRON address is valid."""
-        try:
-            decoded = b58decode(address)
-            return len(decoded) == 21 and decoded[0] == 0x41
-        except Exception:
+        if not isinstance(address, str):
             return False
+
+        # Базовые проверки
+        if len(address) != 34:
+            return False
+
+        if not address.startswith("T"):
+            return False
+
+        # Проверка символов (Base58)
+        try:
+            decoded = b58decode_check(address)
+            # Декодированный адрес (без checksum) должен быть 21 байт (1 байт версии + 20 байт публичного ключа)
+            if len(decoded) != 21:
+                return False
+
+        except (ValueError, TypeError) as e:
+            return False
+        return True
 
     async def get_account_info(self, address: str) -> AccountInfoModel:
         """Get bandwidth, energy and TRX balance by address."""

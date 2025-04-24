@@ -1,8 +1,15 @@
 from datetime import datetime
 from typing import Annotated, Any
 
-from base58 import b58decode
-from pydantic import BaseModel, ConfigDict, Field, conint, field_validator
+from base58 import b58decode_check
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    conint,
+    field_validator,
+)
 
 
 class TronAddressQueryRequest(BaseModel):
@@ -11,13 +18,26 @@ class TronAddressQueryRequest(BaseModel):
     @field_validator("address")
     @classmethod
     def validate_address(cls, value):
+        if not isinstance(value, str):
+            raise ValueError("Value is not str")
+
+        # Базовые проверки
+        if len(value) != 34:
+            raise ValueError("Len(value) != 34")
+
+        if not value.startswith("T"):
+            raise ValueError("Address starts not with T")
+
+        # Проверка символов (Base58)
         try:
-            decoded = b58decode(value)
-            if len(decoded) != 21 or decoded[0] != 0x41:
-                raise ValueError("Invalid TRON address format")
-            return value
-        except Exception as e:
-            raise ValueError(f"Invalid TRON address: {str(e)}")
+            decoded = b58decode_check(value)
+            # Декодированный адрес (без checksum) должен быть 21 байт (1 байт версии + 20 байт публичного ключа)
+            if len(decoded) != 21:
+                raise ValueError("Decoded address len != 21")
+
+        except (ValueError, TypeError) as e:
+            raise ValueError(f"Invalid address format: {str(e)}")
+        return value
 
 
 class TronAddressQueryResponse(BaseModel):
@@ -46,3 +66,6 @@ class TronAQRecordsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     records: list[TronAQRecord] = []
+    total: int
+    page: int
+    size: int

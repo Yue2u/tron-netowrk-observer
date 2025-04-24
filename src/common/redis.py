@@ -4,7 +4,7 @@ from redis.asyncio.client import Redis
 from settings.redis import get_redis_settings
 
 redis = aioredis_from_url(
-    get_redis_settings().REDIS_URL, decode_responses=True
+    get_redis_settings().REDIS_URL, decode_responses=False
 )
 
 
